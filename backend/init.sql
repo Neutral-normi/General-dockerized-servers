@@ -1,0 +1,7 @@
+CREATRE TABLE IF NOT EXISTS Plants (
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ species VARCHAR(250) NOT NULL,
+ category VARCHAR(100) ,
+ planting_time DATE ,
+ died BOOLEAN
+);
