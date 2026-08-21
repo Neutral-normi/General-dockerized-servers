@@ -1,16 +1,23 @@
+volumes:
+  postgres_data:
+
+
 networks:
   main_network:
     driver: bridge
 services:
+
   frontend:
     build: ./frontend
-#    context: ./frontend/dockerfile
     container_name: frontend
-    stdin_open: true
     ports:
-      - "3000:3000"
-    networks: 
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
       - main_network
+
   backend:
     build: ./backend
     container_name: backend
@@ -23,18 +30,23 @@ services:
     tty: true
     # depends_on:
     #   db:
-    #     condition: service_healthy
+    #     condition: service_health
+
   db:
     image: postgres:18-alpine
     container_name: postgresql
     restart: always
     shm_size: 128mb
+    # env_file:
+    #   - ./evn/postgresql.env
     env_file:
-      - .env
+      - ./env/postgresql.env
     ports:
         - "5432:5432"
     networks:
         - main_network
+    volumes:
+        - postgres_data:/var/lib/postgresql/data
     # environment:
     #   POSTGRES_PASSWORD: password
     #   POSTGRES_USER: user
@@ -42,7 +54,8 @@ services:
     # env_file:
     #     - ./env/postgresql.env
     healthcheck:
-      test: ["CMD","pg_isready","-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      # test: ["CMD","pg_isready","-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      test: ["CMD", "pg_isready", "-U", "user", "-d", "daq"]
       interval: 10s
       timeout: 5s
       retries: 5
